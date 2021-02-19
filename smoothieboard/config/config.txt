@@ -11,23 +11,17 @@ mm_max_arc_error                             0.01             # The maximum erro
                                                               # note it is invalid for both the above be 0
                                                               # if both are used, will use largest segment length based on radius
 
-# Arm solution configuration : Cartesian robot. Translates mm positions into stepper positions
-# See http://smoothieware.org/stepper-motors
-alpha_steps_per_mm                           80               # Steps per mm for alpha ( X ) stepper
-beta_steps_per_mm                            80               # Steps per mm for beta ( Y ) stepper
-gamma_steps_per_mm                           1600             # Steps per mm for gamma ( Z ) stepper
-
 # Planner module configuration : Look-ahead and acceleration configuration
 # See http://smoothieware.org/motion-control
-acceleration                                 3000             # Acceleration in mm/second/second.
+acceleration                                 2000             # Acceleration in mm/second/second.
 #z_acceleration                              500              # Acceleration for Z only moves in mm/s^2, 0 uses acceleration which is the default. DO NOT SET ON A DELTA
 junction_deviation                           0.05             # See http://smoothieware.org/motion-control#junction-deviation
 #z_junction_deviation                        0.0              # For Z only moves, -1 uses junction_deviation, zero disables junction_deviation on z moves DO NOT SET ON A DELTA
 
 # Cartesian axis speed limits
-x_axis_max_speed                             30000            # Maximum speed in mm/min
-y_axis_max_speed                             30000            # Maximum speed in mm/min
-z_axis_max_speed                             30000              # Maximum speed in mm/min
+x_axis_max_speed                             50000            # Maximum speed in mm/min
+y_axis_max_speed                             50000            # Maximum speed in mm/min
+z_axis_max_speed                             50000              # Maximum speed in mm/min
 
 # Stepper module configuration
 # Pins are defined as  ports, and pin numbers, appending "!" to the number will invert a pin
@@ -39,7 +33,8 @@ alpha_step_pin                               2.0              # Pin for alpha st
 alpha_dir_pin                                0.5              # Pin for alpha stepper direction, add '!' to reverse direction
 alpha_en_pin                                 0.4              # Pin for alpha enable pin
 alpha_current                                0.5              # X stepper motor current
-alpha_max_rate                               30000.0          # Maximum rate in mm/min
+alpha_max_rate                               50000.0          # Maximum rate in mm/min
+alpha_steps_per_mm                           160              # Steps per mm for alpha (X) stepper  (200 steps per rev * 32 steps per microstep) / (2mm pitch * 20 teeth)
 
 # on the MakeIt V1 PnP, beta/Y axis is driven by two external stepper drivers, connected to the M5 enable/step/dir pins (driver is unpopulated on our board)
 # beta normally uses these pins: step=2.1, dir=0.11, en=0.10 -- but those will be used by epsilon/B axis
@@ -49,6 +44,7 @@ beta_dir_pin                                 2.13             # Pin for beta ste
 beta_en_pin                                  4.29             # Pin for beta enable
 beta_current                                 0.5              # B stepper motor current / epsilon axis (remapped)
 beta_max_rate                                30000.0          # Maxmimum rate in mm/min
+beta_steps_per_mm                            160              # Steps per mm for beta (Y) stepper  (200 steps per rev * 32 steps per microstep) / (2mm pitch * 20 teeth)
 
 # on the MakeIt V1 PnP, gamma/Z axis controls the dual-nozzle head Z height with a NEMA17 stepper connected to the onboard stepper driver using the normal pin assignments
 # gamma/M3 pins: step=2.2, dir=0.20, en=0.19
@@ -56,7 +52,8 @@ gamma_step_pin                               2.2              # Pin for gamma st
 gamma_dir_pin                                0.20             # Pin for gamma stepper direction, add '!' to reverse direction
 gamma_en_pin                                 0.19             # Pin for gamma enable
 gamma_current                                0.5              # Z stepper motor current
-gamma_max_rate                               30000.0            # Maximum rate in mm/min
+gamma_max_rate                               30000.0          # Maximum rate in mm/min
+gamma_steps_per_mm                           160              # Steps per mm for gamma (Z) stepper (200 steps per rev * 32 steps per microstep) / (2mm pitch * 20 teeth)
 
 # on the MakeIt V1 PnP, delta/A axis controls the left nozzle rotation with a NEMA8 stepper connected to the onboard stepper driver using the normal pin assignments
 # delta/M4 pins: step=2.3, dir=0.22, en=0.21
@@ -64,24 +61,23 @@ delta_step_pin                               2.3              # Pin for delta st
 delta_dir_pin                                0.22             # Pin for delta stepper direction, add '!' to reverse direction
 delta_en_pin                                 0.21             # Pin for delta enable
 delta_current                                0.5              # Z stepper motor current
-delta_max_rate                               30000.0            # Maximum rate in mm/min
+delta_max_rate                               30000.0          # Maximum rate in mm/min
+delta_steps_per_mm                           17.77777777777778# actually steps per degree for A axis.  (200 steps per rev * 32 microsteps per step) / 360 degrees per rev
 
 # on the MakeIt V1 PnP, epsilon/B axis controls the right nozzle rotation with a NEMA8 stepper connected to the onboard stepper driver of beta/M2/former Y axis
 # epsilon normally uses these pins: step=2.8, dir=2.13, en=4.29
 # we use the Beta driver, so use the beta pins at: step=2.1, dir=0.11, en=0.10
-epsilon_step_pin                               2.1              # Pin for epsilon (actually beta) stepper step signal
-epsilon_dir_pin                                0.11             # Pin for epsilon (actually beta) stepper direction, add '!' to reverse direction
-epsilon_en_pin                                 0.10             # Pin for epsilon (actually beta) enable
-epsilon_current                                0                # epsilon stepper motor current -- assume this is unused because of depopulated driver and remapping
-                                                                # see beta_current for the actual current for this axis
-epsilon_max_rate                               30000.0            # Maximum rate in mm/min
+epsilon_step_pin                             2.1              # Pin for epsilon (actually beta) stepper step signal
+epsilon_dir_pin                              0.11             # Pin for epsilon (actually beta) stepper direction, add '!' to reverse direction
+epsilon_en_pin                               0.10             # Pin for epsilon (actually beta) enable
+epsilon_current                              0                # epsilon stepper motor current -- assume this is unused because of depopulated driver and remapping
+                                                              # see beta_current for the actual current for this axis
+epsilon_max_rate                             30000.0          # Maximum rate in mm/min
+epsilon_steps_per_mm                         17.77777777777778# actually steps per degree for B axis  (200 steps per rev * 32 microsteps per step) / 360 degrees per rev
 
 
-## Extruder module configuration
 extruder.hotend.enable                       false          # Whether to activate the extruder module at all. All configuration is ignored if false
-## Laser module configuration
 laser_module_enable                          false           # Whether to activate the laser module at all
-## Temperature control configuration
 temperature_control.hotend.enable            false             # Whether to activate this ( "hotend" ) module at all.
 
 ## Switch modules
@@ -113,56 +109,118 @@ switch.fan.output_type                       pwm              # PWM output setta
 
 ## Endstops
 # See http://smoothieware.org/endstops
-endstops_enable                              true             # The endstop module is enabled by default and can be disabled here
-#corexy_homing                               false            # Set to true if homing on a hbot or corexy
-alpha_min_endstop                            1.24^            # Pin to read min endstop, add a ! to invert if endstop is NO connected to ground
-#alpha_max_endstop                           1.25^            # Pin to read max endstop, uncomment this and comment the above if using max endstops
-alpha_homing_direction                       home_to_min      # Or set to home_to_max and set alpha_max and uncomment the alpha_max_endstop
-alpha_min                                    0                # This gets loaded as the current position after homing when home_to_min is set
-alpha_max                                    200              # This gets loaded as the current position after homing when home_to_max is set
-beta_min_endstop                             1.26^            # Pin to read min endstop, add a ! to invert if endstop is NO connected to ground
-#beta_max_endstop                            1.27^            # Pin to read max endstop, uncomment this and comment the above if using max endstops
-beta_homing_direction                        home_to_min      # Or set to home_to_max and set alpha_max and uncomment the alpha_max_endstop
-beta_min                                     0                # This gets loaded as the current position after homing when home_to_min is set
-beta_max                                     200              # This gets loaded as the current position after homing when home_to_max is set
-gamma_min_endstop                            1.28^            # Pin to read min endstop, add a ! to invert if endstop is NO connected to ground
-#gamma_max_endstop                           1.29^            # Pin to read max endstop, uncomment this and comment the above if using max endstops
-gamma_homing_direction                       home_to_min      # Or set to home_to_max and set alpha_max and uncomment the alpha_max_endstop
-gamma_min                                    0                # This gets loaded as the current position after homing when home_to_min is set
-gamma_max                                    200              # This gets loaded as the current position after homing when home_to_max is set
+## Endstops new syntax (the name is not significant)
+# NOTE only a min or a max homing endstop maybe defined
+#endstop.minx.enable                          true             # enable an endstop
+#endstop.minx.pin                             1.24             # pin
+#endstop.minx.homing_direction                home_to_min      # direction it moves to the endstop
+#endstop.minx.homing_position                 0                # the cartesian coordinate this is set to when it homes
+#endstop.minx.axis                            X                # the axis designator
+#endstop.minx.max_travel                      500              # the maximum travel in mm before it times out
+#endstop.minx.fast_rate                       50               # fast homing rate in mm/sec
+#endstop.minx.slow_rate                       25               # slow homing rate in mm/sec
+#endstop.minx.retract                         5                # bounce off endstop in mm
 
-alpha_max_travel                             500              # Max travel in mm for alpha/X axis when homing
-beta_max_travel                              500              # Max travel in mm for beta/Y axis when homing
-gamma_max_travel                             500              # Max travel in mm for gamma/Z axis when homing
+# on the MakeIt V1 PnP, X is homed with the head at the right hand side of the gantry at the max travel point
+# the X axis linear rail is 800mm long, but travel is restricted by parts of the X motion system, rail travel is 786.80mm, the head is 42.50mm wide. 
+# Total travel is 744.3mm.  
+# TODO: These numbers are theoretical and don't account for end stops or other differences in real model.  Needs update.
+endstop.maxx.enable                          true             # enable an endstop
+endstop.maxx.pin                             1.25             # pin
+endstop.maxx.homing_direction                home_to_max      # direction it moves to the endstop
+endstop.maxx.homing_position                 740              # the cartesian coordinate this is set to when it homes
+endstop.maxx.axis                            X                # the axis designator
+endstop.maxx.max_travel                      740              # the maximum travel in mm before it times out
+endstop.maxx.fast_rate                       50               # fast homing rate in mm/sec
+endstop.maxx.slow_rate                       25               # slow homing rate in mm/sec
+endstop.maxx.retract                         10               # bounce off endstop in mm
+endstop.maxx.release_first                   true             # first move off of the homing signal if it's active when starting
 
-# Optional enable limit switches, actions will stop if any enabled limit switch is triggered
-#alpha_limit_enable                          false            # Set to true to enable X min and max limit switches
-#beta_limit_enable                           false            # Set to true to enable Y min and max limit switches
-#gamma_limit_enable                          false            # Set to true to enable Z min and max limit switches
+#endstop.miny.enable                          true             # enable an endstop
+#endstop.miny.pin                             1.26             # pin
+#endstop.miny.homing_direction                home_to_min      # direction it moves to the endstop
+#endstop.miny.homing_position                 0                # the cartesian coordinate this is set to when it homes
+#endstop.miny.axis                            Y                # the axis designator
+#endstop.miny.max_travel                      500              # the maximum travel in mm before it times out
+#endstop.miny.fast_rate                       50               # fast homing rate in mm/sec
+#endstop.miny.slow_rate                       25               # slow homing rate in mm/sec
+#endstop.miny.retract                         5                # bounce off endstop in mm
 
-# Endstops home at their fast feedrate first, then once the endstop is found they home again at their slow feedrate for accuracy
-alpha_fast_homing_rate_mm_s                  50               # Alpha/X fast homing feedrate in mm/second
-alpha_slow_homing_rate_mm_s                  25               # Alpha/X slow homing feedrate in mm/second
-beta_fast_homing_rate_mm_s                   50               # Beta/Y  fast homing feedrate in mm/second
-beta_slow_homing_rate_mm_s                   25               # Beta/Y  slow homing feedrate in mm/second
-gamma_fast_homing_rate_mm_s                  4                # Gamma/Z fast homing feedrate in mm/second
-gamma_slow_homing_rate_mm_s                  2                # Gamma/Z slow homing feedrate in mm/second
+# on the MakeIt V1 PnP, Y is homed with the gantry at the back of the machine at the max travel point
+# the Y axis linear guides are 556.2mm long, gantry bushing blocks are 108.287mm.  Total travel is 447.913mm.  
+# TODO: These numbers are theoretical from Fusion model, update w/real numbers.
+endstop.maxy.enable                          true             # enable an endstop
+endstop.maxy.pin                             1.27             # pin
+endstop.maxy.homing_direction                home_to_max      # direction it moves to the endstop
+endstop.maxy.homing_position                 445              # the cartesian coordinate this is set to when it homes
+endstop.maxy.axis                            Y                # the axis designator
+endstop.maxy.max_travel                      445              # the maximum travel in mm before it times out
+endstop.maxy.fast_rate                       50               # fast homing rate in mm/sec
+endstop.maxy.slow_rate                       25               # slow homing rate in mm/sec
+endstop.maxy.retract                         10               # bounce off endstop in mm
+endstop.maxy.release_first                   true             # first move off of the homing signal if it's active when starting
 
-alpha_homing_retract_mm                      5                # Distance to retract from the endstop after it is hit for alpha/X
-beta_homing_retract_mm                       5                # Distance to retract from the endstop after it is hit for beta/Y
-gamma_homing_retract_mm                      1                # Distance to retract from the endstop after it is hit for gamma/Z
+#endstop.minz.enable                          true             # enable an endstop
+#endstop.minz.pin                             1.28             # pin
+#endstop.minz.homing_direction                home_to_min      # direction it moves to the endstop
+#endstop.minz.homing_position                 0                # the cartesian coordinate this is set to when it homes
+#endstop.minz.axis                            Z                # the axis designator
+#endstop.minz.max_travel                      100              # the maximum travel in mm before it times out
+#endstop.minz.fast_rate                       10               # fast homing rate in mm/sec
+#endstop.minz.slow_rate                       2                # slow homing rate in mm/sec
+#endstop.minz.retract                         5                # bounce off endstop in mm
 
-# Optional order in which axis will home, default is they all home at the same time,
-# If this is set it will force each axis to home one at a time in the specified order
-#homing_order                                 XYZ              # X axis followed by Y then Z last
-#move_to_origin_after_home                    false            # Move XY to 0,0 after homing
-#endstop_debounce_count                       100              # Uncomment if you get noise on your endstops, default is 100
-#endstop_debounce_ms                          1                # Uncomment if you get noise on your endstops, default is 1 millisecond debounce
-#home_z_first                                 true             # Uncomment and set to true to home the Z first, otherwise Z homes after XY
+# on the MakeIt V1 PnP, the dual nozzle head is a "see-saw" head, where on head travels down while the other travels up.  an optical homing scheme is used with 
+# a reflective optical sensor and a white painted section of the belt that drives the head.  It behaves like the rack & pinion head designs, in that it's active for the
+# entire time the left head is below the center of travel.
+# mid-axis homing requires a special build of Smoothie firmware, see https://makr.zone/adding-mid-axis-homing-to-smoothieware/359/
+# release_first is required for this axis since the homing sensor is axis for the entire lower half of travel of the left nozzle
+# The nozzle head slider rods have 88mm exposed, and the sliders are 22mm tall.  Total travel is 66mm.
+# The center position, when both nozzles are even, is conisdered 0, so the travel of the head is from -33mm (left down/right up) to +33mm (right down/left up)
+# TODO: confirm with reality
+endstop.maxz.enable                          true             # enable an endstop
+endstop.maxz.pin                             1.29             # pin
+endstop.maxz.homing_direction                home_to_max      # direction it moves to the endstop
+endstop.maxz.homing_position                 0                # the cartesian coordinate this is set to when it homes
+endstop.maxz.axis                            Z                # the axis designator
+endstop.maxz.max_travel                      30               # the maximum travel in mm before it times out
+endstop.maxz.fast_rate                       10               # fast homing rate in mm/sec
+endstop.maxz.slow_rate                       2                # slow homing rate in mm/sec
+endstop.maxz.retract                         5                # bounce off endstop in mm
+endstop.maxz.release_first                   true             # first move off of the homing signal if it's active when starting
 
-# End of endstop config
-# Delete the above endstop section and uncomment next line and copy and edit Snippets/abc-endstop.config file to enable endstops for ABC axis
-#include abc-endstop.config
+# optional enable limit switches, actions will stop if any enabled limit switch is triggered
+#endstop.minx.limit_enable                   false            # set to true to enable the limit on this endstop
+#endstop.miny.limit_enable                   false            # set to true to enable the limit on this endstop
+#endstop.minz.limit_enable                   false            # set to true to enable the limit on this endstop
+
+# also define the pin needed and the Axis designator if limit on a max pin not defined above
+#endstop.maxx.enable                          true             # enable an endstop
+#endstop.maxx.pin                             1.25             # pin
+#endstop.maxx.limit_enable                    true             # set to true to enable the limit on this endstop
+#endstop.maxx.axis                            X                # the axis designator
+
+# OPTIONAL uncomment for homing the A axis to min
+#endstop.mina.enable                          true             # enable an endstop
+#endstop.mina.pin                             1.29             # pin
+#endstop.mina.homing_direction                home_to_min      # direction it moves to the endstop
+#endstop.mina.homing_position                 200              # the cartesian coordinate this is set to when it homes
+#endstop.mina.axis                            A                # the axis designator
+#endstop.mina.max_travel                      100              # the maximum travel in mm before it times out
+#endstop.mina.fast_rate                       10               # fast homing rate in mm/sec
+#endstop.mina.slow_rate                       2                # slow homing rate in mm/sec
+#endstop.mina.retract                         5                # bounce off endstop in mm
+
+# type of machine
+corexy_homing                               false              # set to true if homing on a hbot or corexy
+
+# optional order in which axis will home, default is they all home at the same time,
+# if this is set it will force each axis to home one at a time in the specified order
+homing_order                                  ZXY              # home Z first to get the nozzles clear of any obstacles
+#move_to_origin_after_home                    false            # move XY to 0,0 after homing
+#endstop_debounce_count                       100              # uncomment if you get noise on your endstops, default is 100
+#endstop_debounce_ms                          1                # uncomment if you get noise on your endstops, default is 1 millisecond debounce
+home_z_first                                  true             # uncomment and set to true to home the Z first, otherwise Z homes after XY
 
 ## Z-probe
 # See http://smoothieware.org/zprobe
