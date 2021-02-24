@@ -1,3 +1,6 @@
+
+grbl_mode true
+
 # Smoothieboard configuration file, see http://smoothieware.org/configuring-smoothie
 # NOTE Lines must not exceed 132 characters, and '#' characters mean what follows is ignored
 ## Robot module configurations : general handling of movement G-codes and slicing into moves
@@ -13,15 +16,19 @@ mm_max_arc_error                             0.01             # The maximum erro
 
 # Planner module configuration : Look-ahead and acceleration configuration
 # See http://smoothieware.org/motion-control
-acceleration                                 2000             # Acceleration in mm/second/second.
+acceleration                                800             # Acceleration in mm/second/second.
+#x_acceleration			      4000
+#y_acceleration			      1000
 #z_acceleration                              500              # Acceleration for Z only moves in mm/s^2, 0 uses acceleration which is the default. DO NOT SET ON A DELTA
 junction_deviation                           0.05             # See http://smoothieware.org/motion-control#junction-deviation
 #z_junction_deviation                        0.0              # For Z only moves, -1 uses junction_deviation, zero disables junction_deviation on z moves DO NOT SET ON A DELTA
 
+#microseconds_per_step_pulse					 4                # duration of step pulses to stepper drivers in uS.  Actual value is value+2uS, do not go above 8.
+
 # Cartesian axis speed limits
 x_axis_max_speed                             50000            # Maximum speed in mm/min
 y_axis_max_speed                             50000            # Maximum speed in mm/min
-z_axis_max_speed                             50000              # Maximum speed in mm/min
+z_axis_max_speed                             50000            # Maximum speed in mm/min
 
 # Stepper module configuration
 # Pins are defined as  ports, and pin numbers, appending "!" to the number will invert a pin
@@ -34,22 +41,22 @@ alpha_dir_pin                                0.5              # Pin for alpha st
 alpha_en_pin                                 0.4              # Pin for alpha enable pin
 alpha_current                                0.5              # X stepper motor current
 alpha_max_rate                               50000.0          # Maximum rate in mm/min
-alpha_steps_per_mm                           160              # Steps per mm for alpha (X) stepper  (200 steps per rev * 32 steps per microstep) / (2mm pitch * 20 teeth)
+alpha_steps_per_mm                           161.2276215      # Steps per mm for alpha (X) stepper  (200 steps per rev * 32 steps per microstep) / (2mm pitch * 20 teeth)
 
 # on the MakeIt V1 PnP, beta/Y axis is driven by two external stepper drivers, connected to the M5 enable/step/dir pins (driver is unpopulated on our board)
 # beta normally uses these pins: step=2.1, dir=0.11, en=0.10 -- but those will be used by epsilon/B axis
-# presently unknown if beta_current will still control that driver, which will be reassigned to epsilon -- assume it probably does?
+# presently unknown if beta_current will still control that driver, which will be reassigned to B axis -- assume it probably does?
 beta_step_pin                                2.8              # Pin for beta stepper step signal
-beta_dir_pin                                 2.13             # Pin for beta stepper direction, add '!' to reverse direction
+beta_dir_pin                                 2.13!             # Pin for beta stepper direction, add '!' to reverse direction
 beta_en_pin                                  4.29             # Pin for beta enable
 beta_current                                 0.5              # B stepper motor current / epsilon axis (remapped)
 beta_max_rate                                30000.0          # Maxmimum rate in mm/min
-beta_steps_per_mm                            160              # Steps per mm for beta (Y) stepper  (200 steps per rev * 32 steps per microstep) / (2mm pitch * 20 teeth)
+beta_steps_per_mm                            79.69426752	       # Steps per mm for beta (Y) stepper  (200 steps per rev * 16 steps per microstep) / (2mm pitch * 20 teeth)
 
 # on the MakeIt V1 PnP, gamma/Z axis controls the dual-nozzle head Z height with a NEMA17 stepper connected to the onboard stepper driver using the normal pin assignments
 # gamma/M3 pins: step=2.2, dir=0.20, en=0.19
 gamma_step_pin                               2.2              # Pin for gamma stepper step signal
-gamma_dir_pin                                0.20             # Pin for gamma stepper direction, add '!' to reverse direction
+gamma_dir_pin                                0.20!            # Pin for gamma stepper direction, add '!' to reverse direction
 gamma_en_pin                                 0.19             # Pin for gamma enable
 gamma_current                                0.5              # Z stepper motor current
 gamma_max_rate                               30000.0          # Maximum rate in mm/min
@@ -83,29 +90,25 @@ temperature_control.hotend.enable            false             # Whether to acti
 ## Switch modules
 # See http://smoothieware.org/switch
 
-# Switch module for fan control
-switch.fan.enable                            true             # Enable this module
-switch.fan.input_on_command                  M106             # Command that will turn this switch on
-switch.fan.input_off_command                 M107             # Command that will turn this switch off
-switch.fan.output_pin                        2.6              # Pin this module controls
-switch.fan.output_type                       pwm              # PWM output settable with S parameter in the input_on_comand
-#switch.fan.max_pwm                          255              # Set max pwm for the pin default is 255
+# Switch module for valves and LED control
+switch.lvalve.enable                         true             # Enable this module
+switch.lvalve.input_on_command               M800             # Command that will turn this switch on
+switch.lvalve.input_off_command              M801             # Command that will turn this switch off
+switch.lvalve.output_pin                     2.6              # Pin this module controls
+switch.lvalve.output_type                    digital          # on/off pin
 
-#switch.misc.enable                          true             # Enable this module
-#switch.misc.input_on_command                M42              # Command that will turn this switch on
-#switch.misc.input_off_command               M43              # Command that will turn this switch off
-#switch.misc.output_pin                      2.4              # Pin this module controls
-#switch.misc.output_type                     digital          # Digital means this is just an on or off pin
+switch.rvalve.enable                         true             # Enable this module
+switch.rvalve.input_on_command               M802             # Command that will turn this switch on
+switch.rvalve.input_off_command              M803             # Command that will turn this switch off
+switch.rvalve.output_pin                     2.4              # Pin this module controls
+switch.rvalve.output_type                    digital          # on/off pin
 
-#switch.bltouch.enable                    true         #
-#switch.bltouch.output_pin                2.4          # sw pwm can use any digital pin
-#switch.bltouch.input_on_command          M280         #
-#switch.bltouch.input_off_command         M281         #
-#switch.bltouch.output_type               swpwm        # sw pwm must be low frequency
-#switch.bltouch.pwm_period_ms             20           # 50Hz
-#switch.bltouch.startup_state             false        # start up in the stow state
-#switch.bltouch.startup_value             7.43         # On boot it will go into stow mode, also set with the M281
-#switch.bltouch.default_on_value          3.3          # if M280 is issued without S this is the value it will set it to
+switch.pump.enable                           true             # Enable this module
+switch.pump.input_on_command                 M810             # Command that will turn this switch on
+switch.pump.input_off_command                M811             # Command that will turn this switch off
+switch.pump.output_pin                       2.7              # Pin this module controls
+switch.pump.output_type                      digital          # on/off pin
+
 
 ## Endstops
 # See http://smoothieware.org/endstops
@@ -126,18 +129,18 @@ switch.fan.output_type                       pwm              # PWM output setta
 # Total travel is 744.3mm.  
 # TODO: These numbers are theoretical and don't account for end stops or other differences in real model.  Needs update.
 endstop.maxx.enable                          true             # enable an endstop
-endstop.maxx.pin                             1.25             # pin
+endstop.maxx.pin                             1.25!            # pin
 endstop.maxx.homing_direction                home_to_max      # direction it moves to the endstop
-endstop.maxx.homing_position                 740              # the cartesian coordinate this is set to when it homes
+endstop.maxx.homing_position                 710              # the cartesian coordinate this is set to when it homes
 endstop.maxx.axis                            X                # the axis designator
-endstop.maxx.max_travel                      740              # the maximum travel in mm before it times out
+endstop.maxx.max_travel                      710              # the maximum travel in mm before it times out
 endstop.maxx.fast_rate                       50               # fast homing rate in mm/sec
 endstop.maxx.slow_rate                       25               # slow homing rate in mm/sec
-endstop.maxx.retract                         10               # bounce off endstop in mm
+endstop.maxx.retract                         2               # bounce off endstop in mm
 endstop.maxx.release_first                   true             # first move off of the homing signal if it's active when starting
 
 #endstop.miny.enable                          true             # enable an endstop
-#endstop.miny.pin                             1.26             # pin
+#endstop.miny.pin                             1.26            # pin
 #endstop.miny.homing_direction                home_to_min      # direction it moves to the endstop
 #endstop.miny.homing_position                 0                # the cartesian coordinate this is set to when it homes
 #endstop.miny.axis                            Y                # the axis designator
@@ -150,14 +153,14 @@ endstop.maxx.release_first                   true             # first move off o
 # the Y axis linear guides are 556.2mm long, gantry bushing blocks are 108.287mm.  Total travel is 447.913mm.  
 # TODO: These numbers are theoretical from Fusion model, update w/real numbers.
 endstop.maxy.enable                          true             # enable an endstop
-endstop.maxy.pin                             1.27             # pin
+endstop.maxy.pin                             1.27!            # pin
 endstop.maxy.homing_direction                home_to_max      # direction it moves to the endstop
-endstop.maxy.homing_position                 445              # the cartesian coordinate this is set to when it homes
+endstop.maxy.homing_position                 430              # the cartesian coordinate this is set to when it homes
 endstop.maxy.axis                            Y                # the axis designator
-endstop.maxy.max_travel                      445              # the maximum travel in mm before it times out
+endstop.maxy.max_travel                      430              # the maximum travel in mm before it times out
 endstop.maxy.fast_rate                       50               # fast homing rate in mm/sec
 endstop.maxy.slow_rate                       25               # slow homing rate in mm/sec
-endstop.maxy.retract                         10               # bounce off endstop in mm
+endstop.maxy.retract                         2               # bounce off endstop in mm
 endstop.maxy.release_first                   true             # first move off of the homing signal if it's active when starting
 
 #endstop.minz.enable                          true             # enable an endstop
@@ -179,14 +182,14 @@ endstop.maxy.release_first                   true             # first move off o
 # The center position, when both nozzles are even, is conisdered 0, so the travel of the head is from -33mm (left down/right up) to +33mm (right down/left up)
 # TODO: confirm with reality
 endstop.maxz.enable                          true             # enable an endstop
-endstop.maxz.pin                             1.29             # pin
-endstop.maxz.homing_direction                home_to_max      # direction it moves to the endstop
-endstop.maxz.homing_position                 0                # the cartesian coordinate this is set to when it homes
+endstop.maxz.pin                             1.29!             # pin
+endstop.maxz.homing_direction                home_to_min      # direction it moves to the endstop
+endstop.maxz.homing_position                 -3.25                # the cartesian coordinate this is set to when it homes
 endstop.maxz.axis                            Z                # the axis designator
 endstop.maxz.max_travel                      30               # the maximum travel in mm before it times out
 endstop.maxz.fast_rate                       10               # fast homing rate in mm/sec
 endstop.maxz.slow_rate                       2                # slow homing rate in mm/sec
-endstop.maxz.retract                         5                # bounce off endstop in mm
+endstop.maxz.retract                         2                # bounce off endstop in mm
 endstop.maxz.release_first                   true             # first move off of the homing signal if it's active when starting
 
 # optional enable limit switches, actions will stop if any enabled limit switch is triggered
